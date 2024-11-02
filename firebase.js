@@ -165,7 +165,8 @@ export async function addToCollection(collectionName, id, link) {
 // Add event listener for description buttons
 $(document).on("click", ".view-description", function () {
     let description = $(this).data("description");
-    $("#descriptionModalBody").text(description);
+    // inject as html, so that line breaks are displayed correctly
+    $("#descriptionModalBody").html(description);
     $("#descriptionModal").modal('show');
 });
 
