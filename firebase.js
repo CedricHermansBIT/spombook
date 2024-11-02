@@ -216,6 +216,8 @@ async function displayBooksLibrary(inBooks) {
         let pages = book.pageCount ? `${book.pageCount} pages` : "Unknown pages";
         let authors = book.authors ? book.authors.join(', ') : 'Unknown Author';
         let description = book.description ? book.description : "No description available";
+        // escaped symbols like <, >, etc. are not displayed correctly in the modal, unescape them
+        description = decodeURI(description);
         let embeddable = book.previewLink ? true : false;
         let bookHtml = `
             <div class="col-md-3">
