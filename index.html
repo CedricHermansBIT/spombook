@@ -92,6 +92,9 @@
         if (data.volumeInfo) {
           let book = data.volumeInfo;
           let thumbnail = book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
+          if (book.imageLinks.large) {
+            thumbnail = book.imageLinks.large;
+          }
           let bookHtml = `
             <div class="col-md-3">
               <div class="card mb-4">
