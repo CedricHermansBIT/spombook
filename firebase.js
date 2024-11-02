@@ -213,8 +213,12 @@ export async function displayBooksLibrary(books) {
     books.forEach(bookfull => {
         let book = bookfull.volumeInfo;
         let thumbnail = book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
+        thumbnail.replace("zoom=1", "zoom=2");
         if (book.imageLinks.large) {
             thumbnail = book.imageLinks.large;
+        }
+        if (!thumbnail.endsWith(".jpeg")) {
+            thumbnail += ".jpeg";
         }
         let pages = book.pageCount ? `${book.pageCount} pages` : "Unknown pages";
         let authors = book.authors ? book.authors.join(', ') : 'Unknown Author';
