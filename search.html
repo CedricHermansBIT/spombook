@@ -93,18 +93,17 @@
 		import { searchBooks, addToCollection } from './firebase.js';
 		// Add event listeners for buttons
 		$(document).on("click", ".add-to-library", function () {
-			let self_link = $(this).data("link");
-			if (!self_link) {
-				self_link = 'https://www.googleapis.com/books/v1/volumes/' + $(this).data("id");
-			}
 			let id = $(this).data("id");
-			addToCollection("library", id, self_link);
+			let link = $(this).data("link");
+			let info = JSON.parse(sessionStorage.getItem(id));
+			addToCollection("library", id, info);
 		});
 
 		$(document).on("click", ".add-to-wishlist", function () {
-			let self_link = $(this).data("link");
 			let id = $(this).data("id");
-			addToCollection("wishlist", id, self_link);
+			let link = $(this).data("link");
+			let info = JSON.parse(sessionStorage.getItem(id));
+			addToCollection("wishlist", id, info);
 		});
 
 		// Search button click event

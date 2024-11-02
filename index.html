@@ -43,6 +43,7 @@
     <div id="book-list" class="row"></div>
   </div>
   <script type="module">
+    import { displayBooksLibrary } from './firebase.js';
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -59,65 +60,25 @@
     };
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    // Fetch random books from Firebase and display them
-    async function fetchRandomBooks() {
-      const querySnapshot = await getDocs(collection(db, "library"));
-      let books = [];
-      querySnapshot.forEach((doc) => {
-        books.push(doc.data());
-      });
-      displayRandomBooks(books);
-    }
-
-    // Display random books
-    function displayRandomBooks(books) {
-      let bookList = $("#book-list");
-      bookList.empty();
-      let randomBooks = books.sort(() => 0.5 - Math.random()).slice(0, 8);
-      randomBooks.forEach(book => {
-        let link = book.link;
-        if (link == "undefined") {
-          link = "https://www.googleapis.com/books/v1/volumes/" + book.id;
-        }
-        fetchBookDetails(link);
-      });
-    }
-
-    // Fetch book details from Google Books API
-    function fetchBookDetails(link) {
-      $.get(link, function (data) {
-        if (data.volumeInfo) {
-          let book = data.volumeInfo;
-          let thumbnail = book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
-          if (book.imageLinks.large) {
-            thumbnail = book.imageLinks.large;
-          }
-          let bookHtml = `
-            <div class="col-md-3">
-              <div class="card mb-4">
-                <img src="${thumbnail}" class="card-img-top" alt="${book.title}">
-                <div class="card-body">
-                  <h5 class="card-title">${book.title}</h5>
-                  <p class="card-text">${book.authors ? book.authors.join(', ') : 'Unknown Author'}</p>
-                </div>
-              </div>
-            </div>
-          `;
-          $("#book-list").append(bookHtml);
-        }
-      });
-    }
-
-    // Fetch random books on page load
-    $(document).ready(function () {
-      fetchRandomBooks();
-    });
+// Fetch random books from Firebase and display them
+async function fetchRandomBooks() {
+  const querySnapshot = await getDocs(collection(db, "library"));
+  let books = [];
+  querySnapshot.forEach((doc) => {
+    books.push(doc.data());
+  });
+  let randomBooks = books.sort(() => 0.5 - Math.random()).slice(0, 8);
+  displayBooksLibrary(randomBooks);
+}
+// Fetch random books on page load
+$(document).ready(function () {
+  fetchRandomBooks();
+});
   </script>
 
-  <script type="module" src="firebase.js"></script>
 </body>
 
 </html>

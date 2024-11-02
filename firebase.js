@@ -68,7 +68,7 @@ export function searchBooks(offset = 0, results = []) {
     query += `&startIndex=${offset}`;
     query += "&maxResults=40";
 
-    let fields = "items(id,volumeInfo(title,authors,pageCount,description,imageLinks))";
+    let fields = "items(id,volumeInfo(title,authors,pageCount,description,imageLinks,previewLink))";
 
     $.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&fields=${fields}`, function (data) {
         if (data.items) {
@@ -96,6 +96,10 @@ async function displaySearchResults(books) {
         if (bookInfo.imageLinks.large) {
             thumbnail = bookInfo.imageLinks.large;
         }
+
+        // Store book information in session storage
+        sessionStorage.setItem(id, JSON.stringify(book));
+
         let libraryText = libraryBooks.includes(id) ? 'Already in Library' : `<button class="btn btn-primary add-to-library" data-id="${id}" data-link="${link}">Add to Library</button>`;
         let wishlistText = wishlistBooks.includes(id) ? 'Already in Wishlist' : libraryBooks.includes(id) ? '' : `<button class="btn btn-secondary add-to-wishlist" data-id="${id}" data-link="${link}">Add to Wishlist</button>`;
         let bookHtml = `
@@ -115,8 +119,6 @@ async function displaySearchResults(books) {
     `;
         searchResults.append(bookHtml);
     });
-
-
 }
 
 // Fetch books from a Firestore collection
@@ -130,11 +132,11 @@ async function getCollectionBooks(collectionName) {
 }
 
 // Add book to Firestore collection
-export async function addToCollection(collectionName, id, link) {
+export async function addToCollection(collectionName, id, info) {
     const user = auth.currentUser;
     if (user) {
         try {
-            await addDoc(collection(db, collectionName), { id: id, link: link });
+            await addDoc(collection(db, collectionName), info);
             // Nice pop-up bootstrap alert, that vanishes after 3 seconds
             let alert = `<div class="alert alert-success alert-dismissible fade show" role="alert">
 		  Book added successfully!
@@ -192,12 +194,12 @@ export async function fetchAllBooksLibrary() {
 }
 
 // Display all books
-async function displayBooksLibrary(inBooks) {
+export async function displayBooksLibrary(books) {
     let bookList = $("#book-list");
     bookList.empty();
     //console.log(inBooks);
     // Fetch book details and sort by author, then by title
-    let books = await Promise.all(inBooks.map(book => fetchBookDetails(book)));
+    //let books = await Promise.all(inBooks.map(fetchBookDetails));
     //console.log(books);
     books.sort((a, b) => {
         let authorA = a.volumeInfo.authors ? a.volumeInfo.authors[0] : '';
@@ -260,6 +262,7 @@ function fetchBookDetails(book) {
         });
     });
 }
+
 
 // Show embeddable books
 $(document).on("click", ".embeddable", function () {
