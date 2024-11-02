@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Spoms Library</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- favicon -->
+  <link rel="icon" href="icon.webp" type="image/x-icon">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+  <!-- Top navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" w3-include-html="navbar.html">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center">
+        <img src="icon.webp" alt="Spoms Library" width="30" height="30" class="d-inline-block align-top me-2">
+        <a class="navbar-brand" href="/">Spoms library</a>
+      </div>
+      <div class="ms-auto d-flex">
+        <a class="btn btn-primary me-2" href="library.html">Library</a>
+        <a class="btn btn-secondary me-2" href="search.html">Search books</a>
+        <a class="btn btn-success me-2" href="recommended.html">Recommended</a>
+        <button class="btn btn-outline-primary me-2" id="sign-in-button">Sign In</button>
+        <button class="btn btn-outline-danger" id="sign-out-button" style="display: none;">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <h1>Welcome to Spoms Library</h1>
+    <p class="lead">Here are some random books from the library, to see all books, click on the Library link in the navbar.</p>
+    <small>Note: this is a work in progress. More features to be added, and book list to be updated</small>
+    <div id="book-list" class="row"></div>
+  </div>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDgZiyREc7W3NKQDFQpIgPowATrbRkEGLI",
+      authDomain: "library-31c26.firebaseapp.com",
+      projectId: "library-31c26",
+      storageBucket: "library-31c26.appspot.com",
+      messagingSenderId: "466784027762",
+      appId: "1:466784027762:web:fc3de7d408fc5d4fe72eeb",
+      measurementId: "G-V2YPX8VQQQ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fetch random books from Firebase and display them
+    async function fetchRandomBooks() {
+      const querySnapshot = await getDocs(collection(db, "library"));
+      let books = [];
+      querySnapshot.forEach((doc) => {
+        books.push(doc.data());
+      });
+      displayRandomBooks(books);
+    }
+
+    // Display random books
+    function displayRandomBooks(books) {
+      let bookList = $("#book-list");
+      bookList.empty();
+      let randomBooks = books.sort(() => 0.5 - Math.random()).slice(0, 8);
+      randomBooks.forEach(book => {
+        let link = book.link;
+        if (link == "undefined") {
+          link = "https://www.googleapis.com/books/v1/volumes/" + book.id;
+        }
+        fetchBookDetails(link);
+      });
+    }
+
+    // Fetch book details from Google Books API
+    function fetchBookDetails(link) {
+      $.get(link, function (data) {
+        if (data.volumeInfo) {
+          let book = data.volumeInfo;
+          let thumbnail = book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
+          let bookHtml = `
+            <div class="col-md-3">
+              <div class="card mb-4">
+                <img src="${thumbnail}" class="card-img-top" alt="${book.title}">
+                <div class="card-body">
+                  <h5 class="card-title">${book.title}</h5>
+                  <p class="card-text">${book.authors ? book.authors.join(', ') : 'Unknown Author'}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          $("#book-list").append(bookHtml);
+        }
+      });
+    }
+
+    // Fetch random books on page load
+    $(document).ready(function () {
+      fetchRandomBooks();
+    });
+  </script>
+
+  <script type="module" src="firebase.js"></script>
+</body>
+
+</html>

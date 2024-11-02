@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Search Books</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- favicon -->
+	<link rel="icon" href="icon.webp" type="image/x-icon">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+		integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+		crossorigin="anonymous"></script>
+	<style>
+		.notification {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			z-index: 1050;
+			min-width: 200px;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Top navbar -->
+	<nav class="navbar navbar-expand-lg navbar-light bg-light" w3-include-html="navbar.html">
+		<div class="container-fluid">
+			<div class="d-flex align-items-center">
+				<img src="icon.webp" alt="Spoms Library" width="30" height="30" class="d-inline-block align-top me-2">
+				<a class="navbar-brand" href="/">Spoms library</a>
+			</div>
+			<div class="ms-auto d-flex">
+				<a class="btn btn-primary me-2" href="library.html">Library</a>
+				<a class="btn btn-secondary me-2" href="search.html">Search books</a>
+				<a class="btn btn-success me-2" href="recommended.html">Recommended</a>
+				<button class="btn btn-outline-primary me-2" id="sign-in-button">Sign In</button>
+				<button class="btn btn-outline-danger" id="sign-out-button" style="display: none;">Sign Out</button>
+			</div>
+		</div>
+	</nav>
+
+
+
+	<div class="container">
+		<h1>Search Books</h1>
+		<div class="input-group mb-3">
+			<input type="text" id="search-title" class="form-control"
+				placeholder="Search by title or general search...">
+			<input type="text" id="search-author" class="form-control" placeholder="Search by author...">
+			<div class="input-group-append">
+				<button class="btn btn-outline-secondary" type="button" id="search-button">Search</button>
+			</div>
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="checkbox" id="english" value="en" checked>
+			<label class="form-check-label" for="english">English</label>
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="checkbox" id="dutch" value="nl">
+			<label class="form-check-label" for="dutch">Dutch</label>
+		</div>
+		<div id="search-results" class="row"></div>
+	</div>
+	<div id="notification-container" class="notification"></div>
+
+	<!-- Description Modal -->
+	<div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="descriptionModalLabel">Book Description</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="descriptionModalBody">
+					<!-- Description will be injected here -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script type="module">
+		import { searchBooks, addToCollection } from './firebase.js';
+		// Add event listeners for buttons
+		$(document).on("click", ".add-to-library", function () {
+			let self_link = $(this).data("link");
+			if (!self_link) {
+				self_link = 'https://www.googleapis.com/books/v1/volumes/' + $(this).data("id");
+			}
+			let id = $(this).data("id");
+			addToCollection("library", id, self_link);
+		});
+
+		$(document).on("click", ".add-to-wishlist", function () {
+			let self_link = $(this).data("link");
+			let id = $(this).data("id");
+			addToCollection("wishlist", id, self_link);
+		});
+
+		// Search button click event
+		$("#search-button").click(function () {
+			searchBooks();
+		});
+
+		// Trigger search on Enter key press
+		$("#search-title, #search-author").keypress(function (event) {
+			if (event.keyCode === 13) { // Enter key code
+				$("#search-button").click();
+			}
+		});
+
+	</script>
+</body>
+
+</html>
