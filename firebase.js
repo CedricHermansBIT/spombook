@@ -93,7 +93,7 @@ async function displaySearchResults(books) {
         let pages = bookInfo.pageCount ? `${bookInfo.pageCount} pages` : "Unknown pages";
         let description = bookInfo.description ? bookInfo.description : "No description available";
         let thumbnail = bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
-        console.log(bookInfo.imageLinks);
+        //console.log(bookInfo.imageLinks);
         if (bookInfo.imageLinks && bookInfo.imageLinks.large) {
             thumbnail = bookInfo.imageLinks.large;
         }
@@ -277,7 +277,7 @@ const booksPerPage = 8;
 let currentPage = 1;
 
 export async function fetchBooks(page, searchQuery = "", coll = "library") {
-    console.log("fetchBooks", page, searchQuery, (page-1)*booksPerPage);
+    //console.log("fetchBooks", page, searchQuery, (page-1)*booksPerPage);
     let q;
     const collectionRef = collection(db, coll);
 
@@ -310,7 +310,7 @@ export async function fetchBooks(page, searchQuery = "", coll = "library") {
 }
 
 function displayBooks(books, searchQuery = "") {
-    console.log("displayBooks", books, searchQuery);
+    //console.log("displayBooks", books, searchQuery);
     let bookList = $("#book-list");
     bookList.empty();
 
