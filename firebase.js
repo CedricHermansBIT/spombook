@@ -276,10 +276,10 @@ function fetchBookDetails(book) {
 const booksPerPage = 8;
 let currentPage = 1;
 
-export async function fetchBooks(page, searchQuery = "") {
+export async function fetchBooks(page, searchQuery = "", coll = "library") {
     console.log("fetchBooks", page, searchQuery, (page-1)*booksPerPage);
     let q;
-    const collectionRef = collection(db, "library");
+    const collectionRef = collection(db, coll);
 
     if (searchQuery) {
         q = query(collectionRef, 

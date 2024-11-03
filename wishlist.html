@@ -101,20 +101,20 @@
     google.books.load();
 
     $(document).ready(function () {
-      fetchBooks(currentPage);
+      fetchBooks(currentPage, "", "wishlist");
     });
 
     $("#search-button").click(function () {
       searchQuery = $("#search-input").val();
       currentPage = 1;
-      fetchBooks(currentPage, searchQuery);
+      fetchBooks(currentPage, searchQuery, "wishlist");
     });
 
     $("#search-input").keypress(function (event) {
       if (event.keyCode === 13) { // Enter key code
         searchQuery = $("#search-input").val();
         currentPage = 1;
-        fetchBooks(currentPage, searchQuery);
+        fetchBooks(currentPage, searchQuery, "wishlist"); 
       }
     });
   </script>
