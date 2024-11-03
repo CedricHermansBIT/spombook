@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, or, and, orderBy, addDoc, getDocs, getCountFromServer} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -93,10 +93,10 @@ async function displaySearchResults(books) {
         let pages = bookInfo.pageCount ? `${bookInfo.pageCount} pages` : "Unknown pages";
         let description = bookInfo.description ? bookInfo.description : "No description available";
         let thumbnail = bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
-        if (bookInfo.imageLinks.large) {
+        console.log(bookInfo.imageLinks);
+        if (bookInfo.imageLinks && bookInfo.imageLinks.large) {
             thumbnail = bookInfo.imageLinks.large;
         }
-
         // Store book information in session storage
         sessionStorage.setItem(id, JSON.stringify(book));
 
@@ -212,13 +212,19 @@ export async function displayBooksLibrary(books) {
     // Display sorted books
     books.forEach(bookfull => {
         let book = bookfull.volumeInfo;
-        let thumbnail = book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
-        thumbnail=thumbnail.replace("zoom=1", "zoom=2");
-        if (book.imageLinks.large) {
+        let thumbnail = '';
+        if (book.imageLinks && book.imageLinks.large) {
             thumbnail = book.imageLinks.large;
+        }
+        else if (book.imageLinks) {
+            thumbnail = book.imageLinks.thumbnail
+            //thumbnail = thumbnail.replace("zoom=1", "zoom=2");
         }
         if (!thumbnail.endsWith(".jpeg")) {
             thumbnail += ".jpeg";
+        }
+        if (thumbnail == '.jpeg') {
+            thumbnail = 'https://via.placeholder.com/128x192.png?text=No+Image';
         }
         let pages = book.pageCount ? `${book.pageCount} pages` : "Unknown pages";
         let authors = book.authors ? book.authors.join(', ') : 'Unknown Author';
@@ -267,6 +273,80 @@ function fetchBookDetails(book) {
     });
 }
 
+const booksPerPage = 8;
+let currentPage = 1;
+
+export async function fetchBooks(page, searchQuery = "") {
+    console.log("fetchBooks", page, searchQuery, (page-1)*booksPerPage);
+    let q;
+    const collectionRef = collection(db, "library");
+
+    if (searchQuery) {
+        q = query(collectionRef, 
+            orderBy("volumeInfo.authors"), 
+            orderBy("volumeInfo.title"), 
+            or(and(
+            where("volumeInfo.title", ">=", searchQuery),
+            where("volumeInfo.title", "<=", searchQuery + "\uf8ff"))
+            , and(
+            where("volumeInfo.authors", ">=", searchQuery),
+            where("volumeInfo.authors", "<=", searchQuery + "\uf8ff"))
+        ));
+    } else {
+        q = query(collectionRef, orderBy("volumeInfo.authors"), orderBy("volumeInfo.title"));
+    }
+
+    const allDocsSnapshot = await getDocs(q);
+    const totalBooks = allDocsSnapshot.docs.length;
+    const startIndex = (page - 1) * booksPerPage;
+    const endIndex = startIndex + booksPerPage;
+
+    const paginatedDocs = allDocsSnapshot.docs.slice(startIndex, endIndex);
+    // update total-books id span
+    $("#total-books").text(totalBooks);
+    displayBooksLibrary(paginatedDocs.map(doc => doc.data()), searchQuery);
+
+    updatePaginationControls(totalBooks, booksPerPage, page, searchQuery);
+}
+
+function displayBooks(books, searchQuery = "") {
+    console.log("displayBooks", books, searchQuery);
+    let bookList = $("#book-list");
+    bookList.empty();
+
+    books.forEach(book => {
+        let bookInfo = book.volumeInfo;
+        let thumbnail = bookInfo.imageLinks ? bookInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x192.png?text=No+Image';
+        thumbnail = thumbnail.replace("zoom=1", "zoom=2");
+        let bookHtml = `
+        <div class="col-md-3">
+          <div class="card mb-4">
+            <img src="${thumbnail}" class="card-img-top" alt="${bookInfo.title}">
+            <div class="card-body">
+              <h5 class="card-title">${bookInfo.title}</h5>
+              <p class="card-text">${bookInfo.authors ? bookInfo.authors.join(', ') : 'Unknown Author'}</p>
+            </div>
+          </div>
+        </div>
+      `;
+        bookList.append(bookHtml);
+    });
+}
+
+function updatePaginationControls(totalBooks, booksPerPage, currentPage, searchQuery) {
+    let paginationControls = $("#pagination-controls");
+    paginationControls.empty();
+
+    for (let i = 1; i <= Math.ceil(totalBooks / booksPerPage); i++) {
+        let pageItem = `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#">${i}</a></li>`;
+        paginationControls.append(pageItem);
+    }
+
+    $(".page-link").click(function () {
+        currentPage = parseInt($(this).text());
+        fetchBooks(currentPage, searchQuery);
+    });
+}
 
 // Show embeddable books
 $(document).on("click", ".embeddable", function () {
