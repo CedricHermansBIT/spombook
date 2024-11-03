@@ -22,19 +22,24 @@
 
 <body>
   <!-- Top navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light" w3-include-html="navbar.html">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
       <div class="d-flex align-items-center">
         <img src="icon.webp" alt="Spoms Library" width="30" height="30" class="d-inline-block align-top me-2">
         <a class="navbar-brand" href="index.html">Spoms library</a>
       </div>
-      <div class="ms-auto d-flex">
-        <a class="btn btn-primary me-2" href="library.html">📚Library</a>
-        <a class="btn btn-warning me-2" href="wishlist.html">🌠Wishlist</a>
-        <a class="btn btn-secondary me-2" href="search.html">🔍Search books</a>
-        <a class="btn btn-success me-2" href="recommended.html">💡Recommended</a>
-        <button class="btn btn-outline-primary me-2" id="sign-in-button">Sign In</button>
-        <button class="btn btn-outline-danger" id="sign-out-button" style="display: none;">Sign Out</button>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="ms-auto d-flex flex-lg-row flex-column">
+          <a class="btn btn-primary mb-2 mb-lg-0 me-lg-2" href="library.html">📚Library</a>
+          <a class="btn btn-warning mb-2 mb-lg-0 me-lg-2" href="wishlist.html">🌠Wishlist</a>
+          <a class="btn btn-secondary mb-2 mb-lg-0 me-lg-2" href="search.html">🔍Search books</a>
+          <a class="btn btn-success mb-2 mb-lg-0 me-lg-2" href="recommended.html">💡Recommended</a>
+          <button class="btn btn-outline-primary mb-2 mb-lg-0 me-lg-2" id="sign-in-button">Sign In</button>
+          <button class="btn btn-outline-danger mb-2 mb-lg-0" id="sign-out-button" style="display: none;">Sign Out</button>
+        </div>
       </div>
     </div>
   </nav>
