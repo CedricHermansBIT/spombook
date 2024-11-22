@@ -61,9 +61,11 @@ export function searchBooks(offset = 0, results = []) {
     if ($("#english").is(":checked")) languages.push("en");
     if ($("#dutch").is(":checked")) languages.push("nl");
 
-    let query = "";
-    if (titleQuery) query += `${titleQuery}`;
-    if (authorQuery) query += `${titleQuery ? '+' : ''}inauthor:${authorQuery}`;
+    let queryParts = [];
+    if (titleQuery) queryParts.push(`intitle:${titleQuery}`);
+    if (authorQuery) queryParts.push(`inauthor:${authorQuery}`);
+    let query = queryParts.join('+');
+
     if (languages.length > 0) query += `&langRestrict=${languages.join(",")}`;
     query += `&startIndex=${offset}`;
     query += "&maxResults=40";
@@ -73,6 +75,8 @@ export function searchBooks(offset = 0, results = []) {
     $.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&fields=${fields}`, function (data) {
         if (data.items) {
             displaySearchResults(data.items);
+        } else {
+            displaySearchResults([]);
         }
     });
 }
@@ -82,6 +86,10 @@ async function displaySearchResults(books) {
     let searchResults = $("#search-results");
     searchResults.empty();
 
+    if (books.length === 0) {
+        searchResults.append('<p>No results found.</p>');
+        return;
+    }
     // Fetch existing books from Firestore
     const libraryBooks = await getCollectionBooks("library");
     const wishlistBooks = await getCollectionBooks("wishlist");
