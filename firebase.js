@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, query, where, or, and, orderBy, addDoc, getDocs, getCountFromServer} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, or, and, orderBy, addDoc, getDocs, deleteDoc} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -381,7 +381,7 @@ async function removeFromCollection(collectionName, id) {
         const querySnapshot = await getDocs(collection(db, collectionName));
         querySnapshot.forEach((doc) => {
             if (doc.data().id === id) {
-                doc.ref.delete();
+                deleteDoc(doc);
             }
         });
         // Nice pop-up bootstrap alert, that vanishes after 3 seconds
