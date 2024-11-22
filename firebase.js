@@ -202,7 +202,7 @@ export async function fetchAllBooksLibrary() {
 }
 
 // Display all books
-export async function displayBooksLibrary(books) {
+export async function displayBooksLibrary(books, coll) {
     let bookList = $("#book-list");
     bookList.empty();
     //console.log(inBooks);
@@ -253,7 +253,9 @@ export async function displayBooksLibrary(books) {
         if (embeddable) {
             bookHtml += `<button class="btn btn-success embeddable" data-id="${bookfull.id}">Read Book</button>`;
         }
+
         bookHtml += `
+                    <button class="btn btn-danger remove-from-library" data-id="${bookfull.id}" data-collection="${coll}">Remove from library</button>
                 </div>
               </div>
             </div>
@@ -312,7 +314,7 @@ export async function fetchBooks(page, searchQuery = "", coll = "library") {
     const paginatedDocs = allDocsSnapshot.docs.slice(startIndex, endIndex);
     // update total-books id span
     $("#total-books").text(totalBooks);
-    displayBooksLibrary(paginatedDocs.map(doc => doc.data()), searchQuery);
+    displayBooksLibrary(paginatedDocs.map(doc => doc.data()), searchQuery, coll);
 
     updatePaginationControls(totalBooks, booksPerPage, page, searchQuery);
 }
@@ -364,3 +366,42 @@ $(document).on("click", ".embeddable", function () {
     viewer.load(`${id}`);
 
 });
+
+// Remove book from library or wishlist
+$(document).on("click", ".remove-from-library", function () {
+    let id = $(this).data("id");
+    let coll = $(this).data("collection");
+    removeFromCollection(coll, id);
+});
+
+// Remove book from collection
+async function removeFromCollection(collectionName, id) {
+    const user = auth.currentUser;
+    if (user) {
+        const querySnapshot = await getDocs(collection(db, collectionName));
+        querySnapshot.forEach((doc) => {
+            if (doc.data().id === id) {
+                doc.ref.delete();
+            }
+        });
+        // Nice pop-up bootstrap alert, that vanishes after 3 seconds
+        let alert = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+          Book removed successfully!
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>`;
+        $("#notification-container").prepend(alert);
+        setTimeout(function () {
+            $(".alert").alert('close');
+        }, 3000);
+        fetchBooks(currentPage);
+    } else {
+        let alert = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+            Please sign in to remove books!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>`;
+        $("#notification-container").prepend(alert);
+        setTimeout(function () {
+            $(".alert").alert('close');
+        }, 3000);
+    }
+}
