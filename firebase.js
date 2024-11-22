@@ -198,7 +198,7 @@ export async function fetchAllBooksLibrary() {
     querySnapshot.forEach((doc) => {
         books.push(doc.data());
     });
-    displayBooksLibrary(books);
+    displayBooksLibrary(books, "library");
 }
 
 // Display all books
@@ -314,7 +314,7 @@ export async function fetchBooks(page, searchQuery = "", coll = "library") {
     const paginatedDocs = allDocsSnapshot.docs.slice(startIndex, endIndex);
     // update total-books id span
     $("#total-books").text(totalBooks);
-    displayBooksLibrary(paginatedDocs.map(doc => doc.data()), searchQuery, coll);
+    displayBooksLibrary(paginatedDocs.map(doc => doc.data()), coll);
 
     updatePaginationControls(totalBooks, booksPerPage, page, searchQuery);
 }
