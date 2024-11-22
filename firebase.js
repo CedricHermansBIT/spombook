@@ -381,7 +381,7 @@ async function removeFromCollection(collectionName, id) {
         const querySnapshot = await getDocs(collection(db, collectionName));
         querySnapshot.forEach((doc) => {
             if (doc.data().id === id) {
-                deleteDoc(doc);
+                deleteDoc(doc.ref);
             }
         });
         // Nice pop-up bootstrap alert, that vanishes after 3 seconds
