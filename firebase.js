@@ -119,8 +119,14 @@ async function displaySearchResults(books) {
             <p class="card-text">${bookInfo.authors ? bookInfo.authors.join(', ') : 'Unknown Author'}</p>
             <p class="card-text">${pages}</p>
             <button class="btn btn-info view-description" data-description="${description}">View Description</button>
+            `
+            if (auth.currentUser) {
+                bookHtml += `
             ${libraryText}
             ${wishlistText}
+            `;
+            }
+            bookHtml += `
           </div>
         </div>
       </div>
@@ -253,9 +259,10 @@ export async function displayBooksLibrary(books, coll) {
         if (embeddable) {
             bookHtml += `<button class="btn btn-success embeddable" data-id="${bookfull.id}">Read Book</button>`;
         }
-
+        if (auth.currentUser) {
+            bookHtml += `<button class="btn btn-danger remove-from-library" data-id="${bookfull.id}" data-collection="${coll}">Remove from library</button>`;
+        }
         bookHtml += `
-                    <button class="btn btn-danger remove-from-library" data-id="${bookfull.id}" data-collection="${coll}">Remove from library</button>
                 </div>
               </div>
             </div>
